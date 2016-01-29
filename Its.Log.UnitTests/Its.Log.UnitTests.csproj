@@ -127,6 +127,7 @@
     <Compile Include="ExtensionTests.cs" />
     <Compile Include="FormatterSetTests.cs" />
     <Compile Include="FormatterTests.cs" />
+    <Compile Include="JsonFormatterTests.cs" />
     <Compile Include="JsonSerializationTests.cs" />
     <Compile Include="LoadTests.cs" />
     <Compile Include="Lock.cs" />

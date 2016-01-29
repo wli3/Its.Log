@@ -211,66 +211,71 @@ namespace Its.Log.Instrumentation
 
             return (target, writer) =>
             {
-                Formatter.TextFormatter.WriteStartObject(writer);
-
-                if (writeHeader)
-                {
-                    var entry = target as LogEntry;
-
-                    if (entry != null)
-                    {
-                        Formatter.TextFormatter.WriteLogEntryHeader(entry, writer);
-                    }
-                    else
-                    {
-                        Formatter<Type>.Format(typeof (T), writer);
-                    }
-
-                    Formatter.TextFormatter.WriteEndHeader(writer);
-                }
-
-                for (var i = 0; i < accessors.Length; i++)
-                {
-                    try
-                    {
-                        var accessor = accessors[i];
-
-                        if (accessor.Ignore)
-                        {
-                            continue;
-                        }
-
-                        object value = accessor.GetValue(target);
-
-
-                        if (accessor.SkipOnNull && value == null)
-                        {
-                            continue;
-                        }
-
-                        Formatter.TextFormatter.WriteStartProperty(writer);
-                        writer.Write(accessor.MemberName);
-                        Formatter.TextFormatter.WriteNameValueDelimiter(writer);
-                        value.FormatTo(writer);
-                        Formatter.TextFormatter.WriteEndProperty(writer);
-
-                        if (i < accessors.Length - 1)
-                        {
-                            Formatter.TextFormatter.WritePropertyDelimiter(writer);
-                        }
-                    }
-                    catch (Exception ex)
-                    {
-                        ex.RaiseErrorEvent();
-                        if (ex.ShouldThrow())
-                        {
-                            throw;
-                        }
-                    }
-                }
-
-                Formatter.TextFormatter.WriteEndObject(writer);
+                Format(writer, target, accessors);
             };
+        }
+
+        private static void Format(TextWriter writer, T target, MemberAccessor<T>[] accessors)
+        {
+            Formatter.TextFormatter.WriteStartObject(writer);
+
+            if (writeHeader)
+            {
+                var entry = target as LogEntry;
+
+                if (entry != null)
+                {
+                    Formatter.TextFormatter.WriteLogEntryHeader(entry, writer);
+                }
+                else
+                {
+                    Formatter<Type>.Format(typeof (T), writer);
+                }
+
+                Formatter.TextFormatter.WriteEndHeader(writer);
+            }
+
+            for (var i = 0; i < accessors.Length; i++)
+            {
+                try
+                {
+                    var accessor = accessors[i];
+
+                    if (accessor.Ignore)
+                    {
+                        continue;
+                    }
+
+                    object value = accessor.GetValue(target);
+
+
+                    if (accessor.SkipOnNull && value == null)
+                    {
+                        continue;
+                    }
+
+                    Formatter.TextFormatter.WriteStartProperty(writer);
+                    writer.Write(accessor.MemberName);
+                    Formatter.TextFormatter.WriteNameValueDelimiter(writer);
+                    value.FormatTo(writer);
+                    Formatter.TextFormatter.WriteEndProperty(writer);
+
+                    if (i < accessors.Length - 1)
+                    {
+                        Formatter.TextFormatter.WritePropertyDelimiter(writer);
+                    }
+                }
+                catch (Exception ex)
+                {
+                    ex.RaiseErrorEvent();
+                    if (ex.ShouldThrow())
+                    {
+                        throw;
+                    }
+                }
+            }
+
+            Formatter.TextFormatter.WriteEndObject(writer);
         }
 
         /// <summary>
